@@ -14,6 +14,7 @@ pub mod anchor_2048 {
     }
 
     pub fn move_board(ctx: Context<MoveBoard>, direction: u8) -> Result<()> {
+        assert!(!ctx.accounts.game.ended);
         match direction {
             0 => ctx.accounts.game.move_up(),
             1 => ctx.accounts.game.move_down(),
@@ -22,6 +23,7 @@ pub mod anchor_2048 {
             _ => unreachable!(),
         }
         ctx.accounts.game.steps += 1;
+        ctx.accounts.game.max = ctx.accounts.game.find_max();
         Ok(())
     }
 }

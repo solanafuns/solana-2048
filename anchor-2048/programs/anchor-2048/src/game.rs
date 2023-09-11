@@ -4,6 +4,8 @@ use anchor_lang::prelude::*;
 pub struct Game {
     pub board: Vec<Vec<u16>>,
     pub steps: u16,
+    pub ended: bool,
+    pub max: u16,
 }
 
 impl Game {
@@ -17,6 +19,7 @@ impl Game {
         self.steps = 0;
         self.add_block();
         self.add_block();
+        self.ended = false;
     }
 
     pub fn move_up(&mut self) {
@@ -139,6 +142,18 @@ impl Game {
         self.add_block();
     }
 
+    pub fn find_max(&self) -> u16 {
+        let mut max = 0;
+        for row in 0..4 {
+            for col in 0..4 {
+                if self.board[row][col] > max {
+                    max = self.board[row][col];
+                }
+            }
+        }
+        max
+    }
+
     fn add_block(&mut self) {
         let clock = Clock::get().unwrap();
         let current_time = clock.unix_timestamp;
@@ -149,7 +164,7 @@ impl Game {
             .collect();
 
         if empty_cells.is_empty() {
-            // 游戏板已满，无法添加新块
+            self.ended = true;
             return;
         }
 

@@ -18,9 +18,15 @@ describe("anchor-2048", () => {
   ) => {
     console.log(description);
     const txid = await tx;
-    console.log("txid: " + txid);
+    console.info(" txid => [%s]", txid);
+
     const game: any = await program.account.game.fetch(address);
-    console.log("steps: ", game.steps.toString());
+    console.info(
+      "steps : %s , ended: %s ,max : %s ",
+      game.steps.toString(),
+      game.ended.toString(),
+      game.max.toString()
+    );
     for (let line of game.board) {
       console.log(line.toString());
     }
@@ -54,7 +60,7 @@ describe("anchor-2048", () => {
 
   it("let's move 100 steps !", async () => {
     for (let i = 0; i < 100; i++) {
-      console.log("-------");
+      console.log("\n-------\n");
       let direction = Math.floor(Math.random() * 10) % 4;
       await waitAndPrint(
         "move as description: " + direction + " " + directionText[direction],
