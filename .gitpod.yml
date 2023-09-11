@@ -1,0 +1,4 @@
+# image: node:buster
+
+image:
+  file: ./docker/Dockerfile

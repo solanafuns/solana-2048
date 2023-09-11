@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "./native-2048/Cargo.toml",
+    "./anchor-2048/Cargo.toml"
+  ]
+}
