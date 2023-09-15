@@ -1,6 +1,13 @@
 import { initializeKeypair } from "./init";
 import * as web3 from "@solana/web3.js";
 import * as game from "./game";
+import { select } from "@inquirer/prompts";
+import { onExit } from "signal-exit";
+
+onExit((code, signal) => {
+  console.log("process exited!", code, signal);
+  process.exit(code as number);
+});
 
 const connection = new web3.Connection("http://127.0.0.1:8899", "confirmed");
 // const connection = new web3.Connection(web3.clusterApiUrl("devnet"),"finalized");
@@ -59,6 +66,39 @@ const main = async () => {
   if (gameData?.data) {
     const gameDataParsed = game.ParseGame(gameData.data);
     console.log("game data parsed : ", gameDataParsed);
+  }
+
+  while (true) {
+    try {
+      const answer = await select({
+        message: "Enter your direction: ",
+        choices: [
+          {
+            name: "left",
+            value: 1,
+            description: "move left",
+          },
+          {
+            name: "right",
+            value: 2,
+            description: "move right",
+          },
+          {
+            name: "up",
+            value: 3,
+            description: "move up",
+          },
+          {
+            name: "down",
+            value: 4,
+            description: "move down",
+          },
+        ],
+      });
+      console.log(answer);
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 
