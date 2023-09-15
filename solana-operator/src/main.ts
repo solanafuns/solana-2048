@@ -9,12 +9,22 @@ onExit((code, signal) => {
   process.exit(code as number);
 });
 
+const printLog: boolean = false;
+
 const connection = new web3.Connection("http://127.0.0.1:8899", "confirmed");
 // const connection = new web3.Connection(web3.clusterApiUrl("devnet"),"finalized");
 
 const programId = new web3.PublicKey(
   "4kUz8auT49b6s1mUiPTdbnmwhPiVLjpaGkVmh81Zjygj"
 );
+
+const printBoard = async (game_address: web3.PublicKey) => {
+  const gameData = await connection.getAccountInfo(game_address);
+  if (gameData?.data) {
+    const currentGame = game.ParseGame(gameData.data);
+    console.table(currentGame.board);
+  }
+};
 
 const main = async () => {
   const pair = await initializeKeypair(connection);
@@ -58,17 +68,14 @@ const main = async () => {
     commitment: "confirmed",
     maxSupportedTransactionVersion: 2,
   });
-  console.log("transaction info : ", info?.meta?.logMessages);
-
-  const gameData = await connection.getAccountInfo(one_game.publicKey);
-  console.log("game data : ", gameData?.data);
-
-  if (gameData?.data) {
-    const gameDataParsed = game.ParseGame(gameData.data);
-    console.log("game data parsed : ", gameDataParsed);
+  if (printLog) {
+    console.log("transaction info : ", info?.meta?.logMessages);
   }
 
+  console.log("begin playing game !", one_game.publicKey.toBase58());
+
   while (true) {
+    await printBoard(one_game.publicKey);
     try {
       const answer = await select({
         message: "Enter your direction: ",
@@ -96,6 +103,38 @@ const main = async () => {
         ],
       });
       console.log(answer);
+      const transaction = new web3.Transaction().add(
+        new web3.TransactionInstruction({
+          keys: [
+            {
+              pubkey: pair.publicKey,
+              isSigner: true,
+              isWritable: true,
+            },
+            {
+              pubkey: one_game.publicKey,
+              isSigner: false,
+              isWritable: true,
+            },
+          ],
+          programId,
+          data: Buffer.from([answer]),
+        })
+      );
+
+      const signature = await web3.sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [pair]
+      );
+      console.log("Signature : ", signature);
+      const info = await connection.getTransaction(signature, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 2,
+      });
+      if (printLog) {
+        console.log("transaction info : ", info?.meta?.logMessages);
+      }
     } catch (error) {
       console.log(error);
     }

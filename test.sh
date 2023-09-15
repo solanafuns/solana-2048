@@ -10,7 +10,6 @@ sleep 2
 (
     cd native-2048
     cargo build-bpf
-    solana program deploy 
     solana program deploy target/deploy/native_2048.so
 )
 

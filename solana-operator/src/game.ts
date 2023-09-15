@@ -35,8 +35,8 @@ const schema = {
   },
 };
 
-const ParseGame = (data: Buffer) => {
-  return borsh.deserialize(schema, data);
+const ParseGame = (data: Buffer): Game => {
+  return borsh.deserialize(schema, data) as Game;
 };
 
 const MATH_STUFF_SIZE = borsh.serialize(schema, new Game()).length;

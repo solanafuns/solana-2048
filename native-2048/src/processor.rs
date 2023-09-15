@@ -3,7 +3,7 @@ use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
 };
 
-use crate::instruction::{game_init, InstructionData};
+use crate::instruction::{game_init, game_move, InstructionData};
 
 entrypoint!(process_instruction);
 pub fn process_instruction(
@@ -20,17 +20,8 @@ pub fn process_instruction(
                     msg!("GameInit");
                     game_init(program_id, _accounts)?;
                 }
-                InstructionData::MoveDown => {
-                    msg!("MoveDown");
-                }
-                InstructionData::MoveUp => {
-                    msg!("MoveUp");
-                }
-                InstructionData::MoveLeft => {
-                    msg!("MoveLeft");
-                }
-                InstructionData::MoveRight => {
-                    msg!("MoveRight");
+                _ => {
+                    game_move(_accounts, instruction_data)?;
                 }
             }
         }
